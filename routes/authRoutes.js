@@ -1,10 +1,7 @@
 const express = require("express");
 const route = express.Router();
+const { preRegister } = require("../controllers/authController");
 
-route.get("/auth", (req, res) => {
-	return res.status(200).json({
-		data: "Welcome to auth route"
-	});
-});
+route.post("/pre-register", preRegister);
 
 module.exports = route;
