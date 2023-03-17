@@ -1,6 +1,7 @@
-const { model, Schema, ObjectId } = require("mongoose");
+//const { model, Schema, ObjectId } = require("mongoose");
+const mongoose = require("mongoose");
 
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
 	{
 		username: {
 			type: String,
@@ -21,11 +22,7 @@ const userSchema = new Schema(
 			unique: true,
 			lowercase: true
 		},
-		password: {
-			type: String,
-			required: true,
-			maxlength: 256
-		},
+
 		address: { type: String, default: "" },
 		company: { type: String, default: "" },
 		phone: { type: String, default: "" },
@@ -35,12 +32,12 @@ const userSchema = new Schema(
 			default: ["Buyer"],
 			enum: ["Buyer", "Seller", "Admin"]
 		},
-		enquiredProperties: [{ type: ObjectId, ref: "Ad" }],
-		wishList: [{ type: ObjectId, ref: "Ad" }],
-		resetCode: ""
+		enquiredProperties: [{ type: mongoose.ObjectId, ref: "Ad" }],
+		wishList: [{ type: mongoose.ObjectId, ref: "Ad" }]
+		//resetCode: ""
 	},
 	{ timeStamps: true }
 );
 
-const User = model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;

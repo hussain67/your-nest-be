@@ -1,7 +1,6 @@
+const morgan = require("morgan");
 const express = require("express");
 const app = express();
-const morgan = require("morgan");
-
 const apiInfoRouter = require("./routes/apiInfoRotes");
 const authRouter = require("./routes/authRoutes");
 
