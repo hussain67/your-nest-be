@@ -57,4 +57,34 @@ const register = async (req, res) => {
 	}
 };
 
-module.exports = { preRegister, register };
+const login = async (req, res) => {
+	try {
+		const { email, password } = req.body;
+
+		// Find the user with email
+		const user = await User.findOne({ email });
+
+		// Compare password
+		const match = await comparePassword(password, user.password);
+		if (!match) {
+			return res.json({ error: "Password do not match" });
+		}
+		// Create jwt token
+
+		const token = jwt.sign({ email, password }, process.env.JWT_SECRET, { expiresIn: "1h" });
+		const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+		// Send the response
+		user.password = undefined;
+		return res.json({
+			token,
+			refreshToken,
+			user
+		});
+	} catch (error) {
+		console.log(error);
+		return res.json({ error: "Something went wrong, try again latter " });
+	}
+};
+
+module.exports = { preRegister, register, login };
