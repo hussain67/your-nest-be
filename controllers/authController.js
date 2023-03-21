@@ -42,9 +42,8 @@ const preRegister = async (req, res) => {
 };
 const register = async (req, res) => {
 	try {
-		console.log(req.body);
 		const { email, password } = jwt.verify(req.body.token, process.env.JWT_SECRET);
-		console.log(password);
+
 		const hashedPassword = await hashPassword(password);
 		const user = await new User({
 			name: uuidv4(),
@@ -55,6 +54,7 @@ const register = async (req, res) => {
 		const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 		user.password = undefined;
+		user.resetCode = undefined;
 		return res.json({
 			token,
 			refreshToken,
@@ -129,4 +129,23 @@ const forgotPassword = async (req, res) => {
 	}
 };
 
-module.exports = { preRegister, register, login, forgotPassword };
+const accessAccount = async (req, res) => {
+	try {
+		const { resetCode } = jwt.verify(req.body.resetCode, process.env.JWT_SECRET);
+		const user = await User.findOneAndUpdate({ resetCode }, { resetCode: "" });
+
+		const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+		const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+		user.password = undefined;
+		user.resetCode = undefined;
+		return res.json({
+			token,
+			refreshToken,
+			user
+		});
+	} catch (error) {
+		return res.json({ error: "Something went wrong, try again latter " });
+	}
+};
+module.exports = { preRegister, register, login, forgotPassword, accessAccount };
