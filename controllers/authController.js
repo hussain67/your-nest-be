@@ -9,21 +9,30 @@ const { hashPassword, comparePassword } = require("../utils/auth");
 const preRegister = async (req, res) => {
 	try {
 		const { email, password } = req.body;
+
 		const user = await User.findOne({ email });
 		if (user) {
 			return res.json({ error: "Email is already taken" });
 		}
 		const token = jwt.sign({ email, password }, process.env.JWT_SECRET, { expiresIn: "1h" });
 		AWSSES.sendEmail(
-			emailTemplate(email, ` <a href= "${CLIENT_URL}/api/v1/auth/account-activate/${token}">   Activate  account  </a>`, REPLY_TO, "Activate account"),
+			emailTemplate(
+				email,
+				` 
+				<p> Please click the link below to activate your account </p>
+				<a href= "${CLIENT_URL}/api/v1/auth/account-activate/${token}">   Activate  account  </a>
+			`,
+				REPLY_TO,
+				"Activate account"
+			),
 
 			(err, data) => {
 				if (err) {
 					console.log(err);
-					return res.json({ OK: false });
+					return res.json({ status: false });
 				} else {
 					console.log(data);
-					return res.json({ OK: true });
+					return res.json({ status: true });
 				}
 			}
 		);
@@ -35,13 +44,13 @@ const register = async (req, res) => {
 	try {
 		console.log(req.body);
 		const { email, password } = jwt.verify(req.body.token, process.env.JWT_SECRET);
+		console.log(password);
 		const hashedPassword = await hashPassword(password);
 		const user = await new User({
 			name: uuidv4(),
 			email,
 			password: hashedPassword
-		});
-		user.save();
+		}).save();
 		const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 		const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
@@ -86,5 +95,38 @@ const login = async (req, res) => {
 		return res.json({ error: "Something went wrong, try again latter " });
 	}
 };
+const forgotPassword = async (req, res) => {
+	try {
+		const { email } = req.body;
+		const user = await User.findOne({ email });
+		const resetCode = uuidv4();
+		user.resetCode = resetCode;
+		user.save();
+		const token = jwt.sign({ email, resetCode }, process.env.JWT_SECRET, { expiresIn: "1h" });
+		AWSSES.sendEmail(
+			emailTemplate(
+				email,
+				`<p> Please click the link below to access your account </p>
+			 <a href="${CLIENT_URL}/api/v1/auth/access-account/${token}"> Access my account  </a>
+		
+		`,
+				REPLY_TO,
+				"Access your account"
+			),
+			(err, data) => {
+				if (err) {
+					console.log(err);
+					return res.json({ OK: false });
+				} else {
+					console.log(data);
+					return res.json({ OK: true });
+				}
+			}
+		);
+	} catch (error) {
+		console.log(error);
+		return res.json({ error: "Something went wrong, try again latter " });
+	}
+};
 
-module.exports = { preRegister, register, login };
+module.exports = { preRegister, register, login, forgotPassword };

@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema(
 			unique: true,
 			lowercase: true
 		},
+		password: {
+			type: String,
+			required: true,
+			maxLength: 256
+		},
 
 		address: { type: String, default: "" },
 		company: { type: String, default: "" },
@@ -33,8 +38,8 @@ const userSchema = new mongoose.Schema(
 			enum: ["Buyer", "Seller", "Admin"]
 		},
 		enquiredProperties: [{ type: mongoose.ObjectId, ref: "Ad" }],
-		wishList: [{ type: mongoose.ObjectId, ref: "Ad" }]
-		//resetCode: ""
+		wishList: [{ type: mongoose.ObjectId, ref: "Ad" }],
+		resetCode: { type: String, default: "" }
 	},
 	{ timeStamps: true }
 );

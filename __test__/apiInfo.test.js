@@ -5,7 +5,7 @@ const connectDB = require("../db/connect");
 const url = process.env.MONGO_URI_TEST;
 
 //Connect database
-connectDB(url);
+//connectDB(url);
 
 describe("Check API info", () => {
 	test("It check api is set up properly", async () => {

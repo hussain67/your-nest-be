@@ -19,7 +19,7 @@ const emailTemplate = (email, content, returnTo, subject) => {
                <html>   
                     <div style ="${style}">
 							<h1> Welcome to Your-Nest</h1> 
-							<p> Please click the link below to activate your account </p>
+							
 							${content}
                    </div>
             </html>
