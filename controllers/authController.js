@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/authModels");
 const { AWSSES, CLIENT_URL, REPLY_TO } = require("../config");
 const emailTemplate = require("../utils/email");
-const { hashPassword, comparePassword } = require("../utils/auth");
+const { hashPassword, comparePassword, tokenAndUserResponse } = require("../utils/auth");
 
 const preRegister = async (req, res) => {
 	try {
@@ -78,18 +78,7 @@ const login = async (req, res) => {
 		if (!match) {
 			return res.json({ error: "Password do not match" });
 		}
-		// Create jwt token
-
-		const token = jwt.sign({ email, password }, process.env.JWT_SECRET, { expiresIn: "1h" });
-		const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-		// Send the response
-		user.password = undefined;
-		return res.json({
-			token,
-			refreshToken,
-			user
-		});
+		tokenAndUserResponse(res, user);
 	} catch (error) {
 		console.log(error);
 		return res.json({ error: "Something went wrong, try again latter " });
@@ -133,19 +122,18 @@ const accessAccount = async (req, res) => {
 	try {
 		const { resetCode } = jwt.verify(req.body.resetCode, process.env.JWT_SECRET);
 		const user = await User.findOneAndUpdate({ resetCode }, { resetCode: "" });
-
-		const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-		const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-		user.password = undefined;
-		user.resetCode = undefined;
-		return res.json({
-			token,
-			refreshToken,
-			user
-		});
+		tokenAndUserResponse(res, user);
 	} catch (error) {
 		return res.json({ error: "Something went wrong, try again latter " });
 	}
 };
-module.exports = { preRegister, register, login, forgotPassword, accessAccount };
+const refreshToken = async (req, res) => {
+	try {
+		const { _id } = jwt.verify(req.header.refresh_token, process.env.JWT_SECRET);
+		const user = User.findById({ _id });
+		tokenAndUserResponse(res, user);
+	} catch (error) {
+		return res.json({ error: "Refresh token failed" });
+	}
+};
+module.exports = { preRegister, register, login, forgotPassword, accessAccount, refreshToken };
