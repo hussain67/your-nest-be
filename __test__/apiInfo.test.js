@@ -9,7 +9,7 @@ const url = process.env.MONGO_URI_TEST;
 
 describe("Check API info", () => {
 	test("It check api is set up properly", async () => {
-		const response = await request(app).get("/api/v1").expect(200);
+		const response = await request(app).get("/api/v1/info").expect(200);
 		expect(response.body.data).toBe("Welcome to the api info");
 	});
 });

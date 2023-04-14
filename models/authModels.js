@@ -3,13 +3,6 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
 	{
-		username: {
-			type: String,
-			trim: true,
-			require: true,
-			unique: true,
-			lowercase: true
-		},
 		name: {
 			type: String,
 			trim: true,
@@ -27,6 +20,12 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			maxLength: 256
 		},
+		// verificationToken: String,
+		// isVerified: {
+		// 	type: Boolean,
+		// 	default: false
+		// },
+		// verified: Date,
 
 		address: { type: String, default: "" },
 		company: { type: String, default: "" },

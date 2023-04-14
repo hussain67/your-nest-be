@@ -1,4 +1,5 @@
 const SES = require("aws-sdk/clients/ses");
+const S3 = require("aws-sdk/clients/s3");
 require("dotenv").config();
 
 const awsConfig = {
@@ -12,4 +13,5 @@ const REPLY_TO = "hussain.msh67@yahoo.com";
 const CLIENT_URL = "http://localhost:3000";
 
 const AWSSES = new SES(awsConfig);
-module.exports = { AWSSES, CLIENT_URL, REPLY_TO };
+const AWS3 = new S3(awsConfig);
+module.exports = { AWSSES, AWS3, CLIENT_URL, REPLY_TO };
