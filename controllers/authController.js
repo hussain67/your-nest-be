@@ -98,7 +98,6 @@ const login = async (req, res) => {
 	}
 };
 const currentUser = async (req, res) => {
-	console.log(req.user);
 	try {
 		const user = await User.findById(req.user._id);
 		if (user) {
@@ -141,7 +140,7 @@ const forgotPassword = async (req, res) => {
 					console.log(err);
 					return res.json({ status: "Failed" });
 				} else {
-					console.log(data);
+					//console.log(data);
 					return res.json({ status: "Success" });
 				}
 			}
