@@ -50,7 +50,7 @@ const removeImage = async (req, res) => {
 };
 
 const createAd = async (req, res) => {
-	console.log(req.headers);
+	//console.log(req.headers);
 	const { photos, price, address, bedrooms, bathrooms, carparks, landsize, title, description, loading, type, action } = req.body;
 	try {
 		const slug = slugify(`${type}-${address}-${uuidv4(4)}`);
@@ -62,9 +62,9 @@ const createAd = async (req, res) => {
 			postedBy: req.user._id,
 			location: {
 				type: "Point",
-				coordinates: [geo[0].longitude, geo[0].latitude],
-				googleMap: geo
+				coordinates: [geo?.[0].longitude, geo?.[0].latitude]
 			},
+			googleMap: geo,
 			slug: slugify(`${type}-${address}-${uuidv4(4)}`)
 		}).save();
 		//Make user roll seller
@@ -95,4 +95,13 @@ const getAds = async (req, res) => {
 		console.log(error);
 	}
 };
-module.exports = { uploadImage, removeImage, createAd, getAds };
+const getAd = async (req, res) => {
+	const slug = req.params.slug;
+	//console.log(slug);
+	try {
+		const ad = await Ad.find({ slug }).populate("postedBy", "name username, email,  photos.Location");
+		res.json({ ad });
+	} catch (err) {}
+};
+
+module.exports = { uploadImage, removeImage, createAd, getAds, getAd };

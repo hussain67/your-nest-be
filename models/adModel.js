@@ -9,7 +9,7 @@ const adSchema = new mongoose.Schema(
 		bathrooms: Number,
 		landsize: String,
 
-		carpark: Number,
+		carparks: Number,
 		location: {
 			type: {
 				type: String,
@@ -39,7 +39,7 @@ const adSchema = new mongoose.Schema(
 			type: Boolean,
 			default: false
 		},
-		googleMap: [],
+		googleMap: {},
 		type: {
 			type: String,
 			default: "Other"
