@@ -1,7 +1,8 @@
-const { AWSS3, GOOGLE_GEOCODER } = require("../config");
+const { AWSS3, AWSSES, CLIENT_URL, GOOGLE_GEOCODER } = require("../config");
 const { v4: uuidv4 } = require("uuid");
 const Ad = require("../models/adModel");
 const User = require("../models/authModels");
+const emailTemplate = require("../utils/email");
 const slugify = require("slugify");
 
 const uploadImage = async (req, res) => {
@@ -103,5 +104,48 @@ const getAd = async (req, res) => {
 		res.json({ ad });
 	} catch (err) {}
 };
+const contactSeller = async (req, res) => {
+	try {
+		const { name, email, message, phone, adId } = req.body;
+		const ad = await Ad.findById(adId).populate("postedBy", "email");
+		const user = await User.findByIdAndUpdate(req.user._id, {
+			$addToSet: { enquiredProperties: adId }
+		});
+		if (!user) {
+			res.json({ error: "Could not find user with that email" });
+		} else {
+			AWSSES.sendEmail(
+				emailTemplate(
+					email,
+					ad.postedBy.email,
+					` 
+					<p> Customer enquiry</p>
+					<h4> Customer details</h4>
+					<p> Name: ${name} </p>
+					<p> Email: ${email} </p>
+					<p> Phone: ${phone} </p>
+					<p>  Message: ${message}</p>
+					<a href= "${CLIENT_URL}/ad/${ad.slug}"> View ad for House for sell  </a>
+				`,
 
-module.exports = { uploadImage, removeImage, createAd, getAds, getAd };
+					"You have received a new customer enquiry"
+				),
+
+				(err, data) => {
+					if (err) {
+						//console.log(err);
+						return res.json({ status: "Failed" });
+					} else {
+						//console.log(data);
+						return res.json({ status: "Success" });
+					}
+				}
+			);
+		}
+		//console.log(req.body);
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+module.exports = { uploadImage, removeImage, createAd, getAds, getAd, contactSeller };

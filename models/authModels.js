@@ -3,6 +3,12 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
 	{
+		username: {
+			type: String,
+			trim: true,
+			default: "",
+			unique: true
+		},
 		name: {
 			type: String,
 			trim: true,
@@ -30,6 +36,7 @@ const userSchema = new mongoose.Schema(
 		address: { type: String, default: "" },
 		company: { type: String, default: "" },
 		phone: { type: String, default: "" },
+		about: { type: String, default: "" },
 		photo: {},
 		role: {
 			type: [String],

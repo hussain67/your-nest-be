@@ -10,7 +10,7 @@ const awsConfig = {
 	apiVersion: "2010-12-01"
 };
 
-const REPLY_TO = "hussain.msh67@yahoo.com";
+//const REPLY_TO = "hussain.msh67@yahoo.com";
 const CLIENT_URL = "http://localhost:3000";
 
 const GOOGLE_GEOCODER = NodeGeocoder({
@@ -24,4 +24,4 @@ const GOOGLE_GEOCODER = NodeGeocoder({
 
 const AWSSES = new SES(awsConfig);
 const AWSS3 = new S3(awsConfig);
-module.exports = { AWSSES, AWSS3, CLIENT_URL, REPLY_TO, GOOGLE_GEOCODER };
+module.exports = { AWSSES, AWSS3, CLIENT_URL, GOOGLE_GEOCODER };

@@ -4,12 +4,12 @@ const style = `
       border-radius:10px;
      `;
 
-const emailTemplate = (email, content, returnTo, subject) => {
+const emailTemplate = (emailFrom, emailTo, content, subject) => {
 	return {
-		Source: process.env.EMAIL_FROM,
+		Source: emailFrom,
 
 		Destination: {
-			ToAddresses: [email]
+			ToAddresses: [emailTo]
 		},
 		Message: {
 			Body: {

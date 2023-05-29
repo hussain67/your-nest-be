@@ -2,7 +2,7 @@ require("dotenv").config();
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const User = require("../models/authModels");
-const { AWSSES, CLIENT_URL, REPLY_TO } = require("../config");
+const { AWSSES, CLIENT_URL } = require("../config");
 const emailTemplate = require("../utils/email");
 const { hashPassword, comparePassword, tokenAndUserResponse } = require("../utils/auth");
 //const setupDatabase = require("../db/seed-test");
@@ -22,12 +22,13 @@ const preRegister = async (req, res) => {
 		}
 		AWSSES.sendEmail(
 			emailTemplate(
+				process.env.EMAIL_FROM,
 				email,
 				` 
 				<p> Please click the link below to activate your account </p>
 				<a href= "${CLIENT_URL}/auth/account-activate/${token}">   Activate  account  </a>
 			`,
-				REPLY_TO,
+				//REPLY_TO,
 				"Activate account"
 			),
 
@@ -54,6 +55,7 @@ const register = async (req, res) => {
 		}
 		const hashedPassword = await hashPassword(password);
 		const user = await new User({
+			username: uuidv4(),
 			name,
 			email,
 			password: hashedPassword
@@ -132,7 +134,7 @@ const forgotPassword = async (req, res) => {
 			 <a href="${CLIENT_URL}/auth/access-account/${token}"> Access my account  </a>
 		
 		`,
-				REPLY_TO,
+				//REPLY_TO,
 				"Access your account"
 			),
 			(err, data) => {
@@ -181,4 +183,16 @@ const setupDatabase = async (req, res) => {
 		return res.json({ status: "NOT OK" });
 	}
 };
-module.exports = { preRegister, register, login, currentUser, forgotPassword, accessAccount, refreshToken, setupDatabase };
+const publicProfile = async (req, res) => {
+	try {
+		const user = User.findOne({ username: req.params.username });
+		user.password = undefined;
+		user.resetCode = undefined;
+
+		res.json(user);
+	} catch (error) {
+		console.log(error);
+		res.json({ error: "User not found" });
+	}
+};
+module.exports = { preRegister, register, login, currentUser, forgotPassword, accessAccount, refreshToken, setupDatabase, publicProfile };

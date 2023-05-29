@@ -8,7 +8,6 @@ const adSchema = new mongoose.Schema(
 		bedrooms: Number,
 		bathrooms: Number,
 		landsize: String,
-
 		carparks: Number,
 		location: {
 			type: {
