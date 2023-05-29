@@ -1,6 +1,6 @@
 const express = require("express");
 const route = express.Router();
-const { preRegister, register, login, currentUser, forgotPassword, accessAccount, refreshToken, setupDatabase, publicProfile } = require("../controllers/authController");
+const { preRegister, register, login, currentUser, forgotPassword, accessAccount, refreshToken, setupDatabase, publicProfile, updateProfile } = require("../controllers/authController");
 const { requireSignin } = require("../middlewares/authMiddleware");
 
 route.post("/setupDb", setupDatabase);
@@ -12,5 +12,6 @@ route.get("/refresh-token", refreshToken);
 route.post("/forgot-password", forgotPassword);
 route.post("/access-account", accessAccount);
 route.post("/profile/:username", publicProfile);
+route.put("/update-profile", requireSignin, updateProfile);
 
 module.exports = route;
