@@ -1,10 +1,16 @@
 require("dotenv").config();
+
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const User = require("../models/authModels");
-const { AWSSES, CLIENT_URL } = require("../config");
-const emailTemplate = require("../utils/email");
+
 const { hashPassword, comparePassword, tokenAndUserResponse } = require("../utils/auth");
+
+//const sendEmailMailtrap = require("../utils/mailtrap");
+const emailEthereal = require("../utils/emailEthereal");
+const { AWSSES, CLIENT_URL, REPLY_TO } = require("../config");
+const emailTemplate = require("../utils/emailTemplate");
+
 //const setupDatabase = require("../db/seed-test");
 
 const preRegister = async (req, res) => {
@@ -16,19 +22,22 @@ const preRegister = async (req, res) => {
 			return res.json({ error: "Email is already taken" });
 		}
 		const token = jwt.sign({ name, email, password }, process.env.JWT_SECRET, { expiresIn: "1h" });
+		//sendEmailMailtrap();
 
 		if (type === "test") {
 			return res.json({ token });
 		}
+		const subject = "Email verification";
+
+		// EMAIL VARIFICATION WITH AWS SES
 		AWSSES.sendEmail(
 			emailTemplate(
-				process.env.EMAIL_FROM,
 				email,
 				` 
 				<p> Please click the link below to activate your account </p>
 				<a href= "${CLIENT_URL}/auth/account-activate/${token}">   Activate  account  </a>
 			`,
-				//REPLY_TO,
+				REPLY_TO,
 				"Activate account"
 			),
 
@@ -42,6 +51,12 @@ const preRegister = async (req, res) => {
 				}
 			}
 		);
+		//*** Email varification with Ethereal */
+
+		// const infoId = await emailEthereal(name, email, subject, token);
+		// if (infoId) {
+		// 	return res.json({ status: "Success" });
+		// }
 	} catch (err) {
 		return res.json({ error: "Something went wrong, try again latter" });
 	}
@@ -210,4 +225,16 @@ const updateProfile = async (req, res) => {
 		}
 	}
 };
-module.exports = { preRegister, register, login, currentUser, forgotPassword, accessAccount, refreshToken, setupDatabase, publicProfile, updateProfile };
+
+const updatePassword = async (req, res) => {
+	const { password } = req.body;
+	console.log(password);
+
+	try {
+		const user = await User.findByIdAndUpdate(req.user._id, { password: await hashPassword(password) });
+		res.json({ ok: true });
+	} catch (error) {
+		console.log(error);
+	}
+};
+module.exports = { preRegister, register, login, currentUser, forgotPassword, accessAccount, refreshToken, setupDatabase, publicProfile, updateProfile, updatePassword };
