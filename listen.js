@@ -5,7 +5,7 @@ const connectDb = require("./db/connect");
 
 const { PORT = 8000 } = process.env;
 
-let url = (url = process.env.MONGO_URI_PROD);
+let url = process.env.MONGO_URI_PROD;
 
 if (process.env.NODE_ENV === "test") {
 	url = process.env.MONGO_URI_TEST;
