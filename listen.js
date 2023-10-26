@@ -11,6 +11,8 @@ if (process.env.NODE_ENV === "test") {
 	url = process.env.MONGO_URI_TEST;
 } else if (process.env.NODE_ENV === "development") {
 	url = process.env.MONGO_URI_DEV;
+}else{
+	url = process.env.MONGO_URI_PROD
 }
 console.log(url);
 connectDb(url);
