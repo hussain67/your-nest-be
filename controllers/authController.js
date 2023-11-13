@@ -1,5 +1,5 @@
 require("dotenv").config();
-
+const { MailtrapClient } = require("mailtrap");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const User = require("../models/authModels");
@@ -29,28 +29,53 @@ const preRegister = async (req, res) => {
 		}
 		const subject = "Email verification";
 
-		// EMAIL VARIFICATION WITH AWS SES
-		AWSSES.sendEmail(
-			emailTemplate(
-				email,
-				` 
-				<p> Please click the link below to activate your account </p>
-				<a href= "${CLIENT_URL}/auth/account-activate/${token}">   Activate  account  </a>
-			`,
-				REPLY_TO,
-				"Activate account"
-			),
+		const TOKEN = "7d51ae55e11c338be1c184a0ff1851e2";
+		const ENDPOINT = "https://send.api.mailtrap.io/";
 
-			(err, data) => {
-				if (err) {
-					//console.log(err);
-					return res.json({ status: "Failed" });
-				} else {
-					//console.log(data);
-					return res.json({ status: "Success" });
-				}
+		const client = new MailtrapClient({ endpoint: ENDPOINT, token: TOKEN });
+
+		const sender = {
+			email: "mailtrap@your-nest.mdshahid.org",
+			name: "Mailtrap Test"
+		};
+		const recipients = [
+			{
+				email: "shahidshahnoor67@gmail.com"
 			}
-		);
+		];
+
+		client
+			.send({
+				from: sender,
+				to: recipients,
+				subject: "You are awesome!",
+				text: "Congrats for sending test email with Mailtrap!",
+				category: "Integration Test"
+			})
+			.then(console.log, console.error);
+
+		// EMAIL VARIFICATION WITH AWS SES
+		// AWSSES.sendEmail(
+		// 	emailTemplate(
+		// 		email,
+		// 		`
+		// 		<p> Please click the link below to activate your account </p>
+		// 		<a href= "${CLIENT_URL}/auth/account-activate/${token}">   Activate  account  </a>
+		// 	`,
+		// 		REPLY_TO,
+		// 		"Activate account"
+		// 	),
+
+		// 	(err, data) => {
+		// 		if (err) {
+		// 			//console.log(err);
+		// 			return res.json({ status: "Failed" });
+		// 		} else {
+		// 			//console.log(data);
+		// 			return res.json({ status: "Success" });
+		// 		}
+		// 	}
+		// );
 		//*** Email varification with Ethereal */
 
 		// const infoId = await emailEthereal(name, email, subject, token);

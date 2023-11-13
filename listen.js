@@ -3,7 +3,7 @@ require("dotenv").config();
 const app = require("./server.js");
 const connectDb = require("./db/connect");
 
-const { PORT = 8000 } = process.env;
+const { PORT = 8080 } = process.env;
 
 let url = process.env.MONGO_URI_PROD;
 
